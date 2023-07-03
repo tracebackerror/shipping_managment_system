@@ -1,4 +1,4 @@
-# Shipping Managment System
+# Shipping Management System
 
 ## How to Run
 
