@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}<title>Sign Up</title>{% endblock title %}
+
+{% block body %}
+
+<div style="background-repeat: no-repeat;background-size: cover;background-image: url('{% static 'images/bg.png' %}');">
+    <div class="container" style="height: 100vh;">
+        <br><br><br>
+        <div class="col-md-5 offset-md-8 py-5"
+            style="padding: 30px;border: 1px ridge white;border-radius: 20px;background-color: antiquewhite;max-height: 600px;overflow-y: auto;">
+            <form method="post">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                {% for field in form %}
+                {% for error in field.errors %}
+                <div class="alert alert-danger">
+                    <strong>{{ error|escape }}</strong>
+                </div>
+                {% endfor %}
+                {% endfor %}
+                {% for error in form.non_field_errors %}
+                <div class="alert alert-danger">
+                    <strong>{{ error|escape }}</strong>
+                </div>
+                {% endfor %}
+                {% endif %}
+
+                <div class="text-center">
+                    <span style="font-weight: bold;color: black;">Sign Up</span>
+                    <br><br>
+                </div>
+
+                {{ form.username }}
+                <span style="color: grey;font-size: small">
+                    Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only
+                </span>
+                <br> <br>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        {{ form.first_name }}
+                    </div>
+                    <div class="col-md-6">
+                        {{ form.last_name }}
+                    </div>
+                </div>
+    
+                <br>
+
+                {{ form.password1 }}
+                <span style="color: grey;font-size: small;">
+                    Your password can’t be too similar to your other personal information <br>
+                    Your password must contain at least 8 characters <br>
+                    Your password can’t be a commonly used password <br>
+                    Your password can’t be entirely numeric <br>
+                </span>
+                <br>
+
+                {{ form.password2 }}
+                <span style="color: grey;font-size: small;">
+                    Enter the same password as before, for verification
+                </span>
+                <br><br>
+
+                <button style="width: 150px;display: block;margin-left: auto;margin-right: auto;" type="submit"
+                    class="btn btn-outline-success">Sign Up</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock body %}

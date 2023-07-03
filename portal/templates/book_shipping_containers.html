@@ -1,0 +1,292 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}<title>Book Shipping Containers</title>{% endblock title %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/jquery.seat-charts.css' %}" />
+<link rel="stylesheet" href="{% static 'css/style.css' %}" />
+{% endblock css %}
+
+
+{% block body %}
+<br><br><br>
+<div class="container">
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="selected_container" value="">
+        <input type="hidden" name="total_amt" value="">
+        <div class="row">
+            <div id="divForm1" class="col-md-7 mt-auto mb-auto">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-uppercase" style="font-size: small;font-weight: bold;">
+                            Consignor Name <small>(exporter)</small>
+                        </label>
+                        <input class="form-control" type="text" disabled
+                            value="{{request.user.first_name}} {{request.user.last_name}}">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-uppercase" style="font-size: small;font-weight: bold;">
+                            Consignee Name <small>(importer)</small>
+                        </label>
+                        <input class="form-control" type="text" name="consignee_name" required>
+                    </div>
+                </div>
+                <br>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="text-uppercase" style="font-size: small;font-weight: bold;">
+                            Port, City
+                        </label>
+                        <select name="source_port" class="form-control" onchange="handleFreightFareForm1(1)">
+                            <option disabled selected>Select</option>
+                            {% for port in port_list %}
+                            <option value="{{port.0}}">{{port.1}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="text-uppercase" style="font-size: small;font-weight: bold;">
+                            Port, City
+                        </label>
+                        <select name="dest_port" class="form-control" onchange="handleFreightFareForm1(1)">
+                            <option disabled selected>Select</option>
+                            {% for port in port_list %}
+                            <option value="{{port.0}}">{{port.1}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <br>
+                <label class="text-uppercase" style="font-size: small;font-weight: bold;">
+                    Ready to load
+                </label>
+                <input type="date" class="form-control col-md-12" name="shipping_date" required
+                    onchange="handleFreightFareForm1()">
+                <br>
+                <div class="container col-md-6 text-center">
+                    <button onclick="btnSubmitForm1()" type="button" class="btn btn-warning">Proceed</button>
+                </div>
+            </div>
+            <div id="divForm2" class="col-md-7 mt-auto mb-auto" style="display: none;">
+                <i class="fa fa-arrow-circle-left"
+                    style="margin-bottom: 10px;color:#ffc107;font-weight: bold;font-size: 17px;cursor: pointer;"
+                    aria-hidden="true">&nbsp;Back</i>
+                <br>
+                <label class="text-uppercase" style="font-size: small;font-weight: bold;">
+                    Transportation by
+                </label>
+                <select name="transportation_by" class="form-control">
+                    <option value="fcl">Full Container Load (FCL)</option>
+                    <option value="lcl">Less Container Load (LCL)</option>
+                </select>
+                <div id="divfcl">
+                    <br>
+                    <label class="text-uppercase" style="font-size: small;font-weight: bold;">
+                        Container Type
+                    </label>
+                    <select name="container_type" class="form-control" onchange="handleFreightFareForm2()">
+                        <option disabled selected>Select</option>
+                        <option value="10std">10' Standard</option>
+                        <option value="20std">20' Standard</option>
+                        <option value="40std">40' Standard</option>
+                        <option value="40hcube">40' High Cube</option>
+                        <option value="45hcube">45' High Cube</option>
+                        <option value="20ref">20' Refrigerated</option>
+                        <option value="40ref">40' Refrigerated</option>
+                    </select>
+                    <br>
+                    <div class="row">
+                        <div class="col-md-6" id="seat-map">
+                            <div class="front-indicator">Front</div>
+                        </div>
+                        <div class="col-md-5 mt-auto mb-auto" id="legend"></div>
+                    </div>
+                    <br><br>
+                </div>
+                <div id="divlcl" style="display: none;">
+                    <br>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label class="text-uppercase" style="font-size: small;font-weight: bold;">
+                                Package Weight (kg)
+                            </label>
+                            <input class="form-control" id="pkg_weight" type="number" min="0.1" value="0.1" step="0.1"
+                                name="pkg_weight" onkeyup="handleFreightFareForm2(handleFreightFareForm2)"
+                                onmouseup="handleFreightFareForm2()">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-uppercase" style="font-size: small;font-weight: bold;">
+                                Package Volume (m<sup>3</sup>)
+                            </label>
+                            <input class="form-control" id="pkg_volume" type="number" min="0.1" value="0.1" step="0.1"
+                                name="pkg_volume" onkeyup="handleFreightFareForm2(handleFreightFareForm2)"
+                                onmouseup="handleFreightFareForm2()">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="text-uppercase" style="font-size: small;font-weight: bold;">
+                                Package Quantity
+                            </label>
+                            <input class="form-control" id="pkg_quantity" type="number" min="1" value="1"
+                                name="pkg_quantity" onkeyup="handleFreightFareForm2(handleFreightFareForm2)"
+                                onmouseup="handleFreightFareForm2()">
+                        </div>
+                    </div>
+                </div>
+                <br>
+            </div>
+            <div class="col-md-4 offset-md-1" style="border: 1px solid lightgrey;height: 80vh;">
+                <p style="text-align: center;font-weight: bold;text-decoration: underline;">Fare</p>
+                <div class="text-center">
+                    <span id="spanSrc" style="color: gray;"></span><br>
+                    <span id="spanDest" style="color: gray;"></span><br>
+                    <span id="spanSDate" style="color: gray;"></span><br>
+                </div>
+                <br> <br>
+                <table class="table table-borderless">
+                    <tbody>
+                        <tr style="border-top: 1px solid lightgray;">
+                            <th>Service Charge</th>
+                            <td><i class="fa fa-rupee"></i>&nbsp;<span id="spanServiceC" style=font-size:large;">0</td>
+                        </tr>
+                        <tr>
+                            <th rowspan="3">Container Charge</th>
+                            <td><i class="fa fa-rupee"></i>&nbsp;<span id="spanContainerC" style=font-size:large;">0
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><span id="spanQuantity"></span></td>
+                        </tr>
+                        <tr>
+                            <td><span id="spanSubTotal"></span></td>
+                        </tr>
+                        <tr style="border-top: 1px solid lightgray;border-bottom: 1px solid lightgray;">
+                            <th>Total Amount</th>
+                            <td><i class="fa fa-rupee"></i>&nbsp;<span id="spanTotal" style=font-size:large;">0</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <br>
+                <div id="divBookFreight" class="container text-center" style="display: none;">
+                    <button type="submit" class="btn btn-warning">Pay & Book Now</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+{% endblock body %}
+
+{% block script %}
+<script src="{% static 'js/jquery.seat-charts.min.js' %}"></script>
+<script src="{% static 'js/cargo-container-charts.js' %}"></script>
+
+<script>
+    var source_port = $("select[name='source_port']");
+    var dest_port = $("select[name='dest_port']");
+    var shipping_date = $("input[name='shipping_date']");
+    var transportation_by = $("select[name='transportation_by']");
+    var container_type = $("select[name='container_type']");
+    var pkg_weight = $("input[name='pkg_weight']");
+    var pkg_volume = $("input[name='pkg_volume']");
+    var pkg_quantity = $("input[name='pkg_quantity']");
+
+    $(document).ready(function () {
+        $("select[name='transportation_by']").change(function () {
+            $("#divfcl").hide();
+            $("#divlcl").hide();
+            $("#div" + $(this).val()).show();
+            handleFreightFareForm2();
+        });
+
+        $(".fa.fa-arrow-circle-left").click(function () {
+            $("#divForm2").hide();
+            $("#divForm1").show();
+        });
+
+        $("form").on("submit", function () {
+            $("input[name='selected_container']").val(selectedContainer.toString());
+            $("input[name='total_amt']").val($("#spanTotal").html());
+            return true;
+        });
+    });
+    function btnSubmitForm1() {
+        $("#divForm1").hide();
+        $("#divForm2").show();
+        var booked_container;
+        $.ajax({
+            method: "POST",
+            url: "{% url 'get_booked_cont' %}",
+            data: {
+                source_port: $("select[name='source_port']").val(),
+                dest_port: $("select[name='dest_port']").val(),
+                shipping_date: $("input[name='shipping_date']").val(),
+            }
+        }).done(function (data) {
+            if (data.status == 200) {
+                booked_container = data.data.split(",");
+            } else {
+                booked_container = [];
+            }
+            sc.get(booked_container).status('unavailable');
+        });
+        $("#divBookFreight").show();
+    }
+
+    function handleFreightFareForm1(ajaxCall = 0) {
+        if (source_port.val()) {
+            $("#spanSrc").html("From : " + source_port.find("option[value=" + source_port.val() + "]").html());
+        }
+        if (dest_port.val()) {
+            $("#spanDest").html("To : " + dest_port.find("option[value=" + dest_port.val() + "]").html());
+        }
+        if (shipping_date.val()) {
+            $("#spanSDate").html("Shipping Date : " + shipping_date.val());
+        }
+
+        if (ajaxCall && source_port.val() && dest_port.val()) {
+            $.ajax({
+                method: "POST",
+                url: "{% url 'get_service_charge' %}",
+                data: {
+                    source_port: source_port.val(),
+                    dest_port: dest_port.val(),
+                }
+            }).done(function (data) {
+                $("#spanServiceC").html(data.charge);
+            });
+        }
+    }
+
+    function handleFreightFareForm2() {
+        let quantity = 0;
+        if (transportation_by.val() == "fcl") {
+            quantity = selectedContainer.length;
+        } else {
+            quantity = pkg_quantity.val();
+        }
+
+        if (container_type.val() || transportation_by.val() == "lcl") {
+            $.ajax({
+                method: "POST",
+                url: "{% url 'get_cont_charge' %}",
+                data: {
+                    transportation_by: transportation_by.val(),
+                    container_type: container_type.val(),
+                    weight: pkg_weight.val(),
+                    volume: pkg_volume.val(),
+                    quantity: quantity,
+                    service_charge: $("#spanServiceC").html()
+                }
+            }).done(function (data) {
+                $("#spanContainerC").html(data.charge);
+                $("#spanQuantity").html("X " + quantity);
+                $("#spanSubTotal").html('<i class="fa fa-rupee"></i>&nbsp;<span id="spanContainerC" style=font-size:large;">' + data.subtotal);
+                $("#spanTotal").html(data.total);
+            });
+        }
+    }
+
+</script>
+{% endblock script %}

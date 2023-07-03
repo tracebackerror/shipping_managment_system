@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}<title>Search Freight Rates</title>{% endblock title %}
+
+{% block css %}
+<style>
+    table td,
+    th {
+        text-align: center;
+        vertical-align: middle !important;
+        border: black solid 1px !important;
+    }
+
+    .grey-border {
+        border: 1px solid lightgray;
+        padding: 10px;
+    }
+</style>
+{% endblock css %}
+
+{% block body %}
+{% if not request.user.is_authenticated %}
+<div style="background-repeat: no-repeat;background-size: cover;background-image: url('{% static 'images/bg.png' %}');">
+{% endif %}
+
+    <div class="container" style="height: 100vh;">
+        <br><br><br><br><br>
+        <div class="col-md-9 py-5 ml-auto mr-auto"
+            style="padding: 30px;border: 1px ridge white;border-radius: 20px;background-color: antiquewhite;">
+            <form method="post">
+                {% csrf_token %}
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text" style="width: 15rem;"><strong>Source (Port, City)</strong></div>
+                    </div>
+                    <select name="source_port" class="form-control">
+                        {% for port in port_list %}
+                        <option value="{{port.0}}">{{port.1}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text" style="width: 15rem;"><strong>Destination (Port, City)</strong>
+                        </div>
+                    </div>
+                    <select name="dest_port" class="form-control">
+                        {% for port in port_list %}
+                        <option value="{{port.0}}">{{port.1}}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text" style="width: 15rem;"><strong>Transportation By</strong></div>
+                    </div>
+                    <select name="transportation_by" class="form-control">
+                        <option value="fcl">Full Container Load (FCL)</option>
+                        <option value="lcl">Less Container Load (LCL)</option>
+                    </select>
+                </div>
+                <div id="divContainerType" class="input-group mb-2">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text" style="width: 15rem;"><strong>Container Type</strong></div>
+                    </div>
+                    <select name="container_type" class="form-control">
+                        <option value="10std">10' Standard</option>
+                        <option value="20std">20' Standard</option>
+                        <option value="40std">40' Standard</option>
+                        <option value="40hcube">40' High Cube</option>
+                        <option value="45hcube">45' High Cube</option>
+                        <option value="20ref">20' Refrigerated</option>
+                        <option value="40ref">40' Refrigerated</option>
+                    </select>
+                </div>
+                <div id="divWeight" class="input-group mb-2" style="display: none;">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text" style="width: 15rem;"><strong>Weight (kg)</strong></div>
+                    </div>
+                    <input class="form-control" id="inlineFormInputGroup" type="number" step="0.1" value="{{weight}}"
+                        name="weight">
+                </div>
+                <div id="divVolume" class="input-group mb-2" style="display: none;">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text" style="width: 15rem;"><strong>Volume (m<sup>3</sup>) </strong>
+                        </div>
+                    </div>
+                    <input class="form-control" id="inlineFormInputGroup" type="number" step="0.1" value="{{volume}}"
+                        name="volume">
+                </div>
+                <br>
+                <div class="container col-md-6 text-center">
+                    <button type="submit" class="btn btn-warning">Get Fare</button>
+                </div>
+            </form>
+            <br>
+            {% if total %}
+            <table class="table">
+                <thead>
+                    <tr style="background-color: rgba(0,0,0,.05);">
+                        <th>Service Charge</th>
+                        <th>Container Charge</th>
+                        <th>Expected Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td scope="row">Rs. {{service_charge}}</td>
+                        <td>Rs. {{container_charge}}</td>
+                        <td>Rs. {{total}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            {% endif %}
+        </div>
+    </div>
+
+{% if not request.user.is_authenticated %}
+</div>
+{% endif %}
+{% endblock body %}
+
+{% block script %}
+<script>
+    $(document).ready(function () {
+        $("select[name='source_port'] option[value='{{source_port}}']").prop("selected", true);
+        $("select[name='dest_port'] option[value='{{dest_port}}']").prop("selected", true);
+        $("select[name='transportation_by'] option[value='{{transportation_by}}']").prop("selected", true);
+        $("select[name='container_type'] option[value='{{container_type}}']").prop("selected", true);
+
+        handleTransportationBy($("select[name='transportation_by']").val());
+
+        $("select[name='transportation_by']").change(function () {
+            handleTransportationBy($(this).val());
+        });
+    });
+
+    function handleTransportationBy(transportation_by) {
+        if (transportation_by == "fcl") {
+            $("#divContainerType").show();
+            $("#divWeight").hide();
+            $("#divVolume").hide();
+        } else {
+            $("#divContainerType").hide();
+            $("#divWeight").show();
+            $("#divVolume").show();
+        }
+    }
+</script>
+{% endblock script %}

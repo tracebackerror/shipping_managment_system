@@ -1,0 +1,35 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{% static 'css/jquery.seat-charts.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+</head>
+
+<body>
+
+
+    <div id="seat-map">
+        <div class="front-indicator">Front</div>
+    </div>
+
+    <div class="booking-details">
+        <h2>Booking Details</h2>
+        <h3> Selected Seats (<span id="counter">0</span>):</h3>
+        <ul id="selected-seats"></ul>
+        Total: <b>$<span id="total">0</span></b> 
+        <div id="legend" class="seatCharts-legend"></div>
+    <div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="{% static 'js/jquery.seat-charts.min.js' %}"></script>
+    <script src="{% static 'js/booking.js' %}"></script>
+</body>
+
+</html>

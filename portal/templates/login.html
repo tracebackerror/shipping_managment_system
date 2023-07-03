@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}<title>Login</title>{% endblock title %}
+
+{% block body %}
+
+<div style="background-repeat: no-repeat;background-size: cover;background-image: url('{% static 'images/bg.png' %}');">
+    <div class="container" style="height: 100vh;">
+        <br><br> <br><br> <br><br>
+        <div class="col-md-5 offset-md-8 py-5"
+            style="padding: 30px;border: 1px ridge white;border-radius: 20px;background-color: antiquewhite;">
+            <form method="post">
+                {% csrf_token %}
+
+                {% if form.errors %}
+                <div class="alert alert-danger">
+                    <strong>✘ Invaild Username and Password</strong>
+                </div>
+                {% endif %}
+
+                <div class="text-center">
+                    <span style="font-weight: bold;color: black;">LOGIN</span>
+                    <br><br>
+                </div>
+
+                {{ form.username }}
+                <br>
+                {{ form.password }}
+                <br>
+                <button style="width: 150px;display: block;margin-left: auto;margin-right: auto;" type="submit"
+                    class="btn btn-outline-success">Login</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock body %}

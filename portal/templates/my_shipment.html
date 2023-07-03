@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_tags %}
+
+{% block title %}<title>My Shipment</title>{% endblock title %}
+
+{% block body %}
+<br><br><br>
+<div class="container">
+    <table class="table table-striped table-inverse table-bordered table-sm">
+        <thead class="thead-inverse">
+            <tr>
+                <th>Order No.</th>
+                <th>From</th>
+                <th>To</th>
+                <th>Shipping Date</th>
+                <th>Quantity</th>
+                <th>Consignee Name</th>
+                <th>Delivery OTP</th>
+                <th>Total Fare</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>IN{{order.source_port.2}}{{order.dest_port.2}}{{order.shipping_date.year}}{{order.id}}</td>
+                <td>{{order.source_port|get_port_name}}</td>
+                <td>{{order.dest_port|get_port_name}}</td>
+                <td>{{order.shipping_date}}</td>
+                <td>
+                    {% if order.transportation_by == "fcl" %}
+                    {{order.transportation_by|upper}} - {{order.container_quantity}}
+                    {% else %}
+                    {{order.transportation_by|upper}} - {{order.pkg_quantity}}
+                    {% endif %}
+                </td>
+                <td>{{order.consignee_name}}</td>
+                <td>{{order.delivery_otp}}</td>
+                <td>
+                    <i class="fa fa-rupee"></i><span
+                        style="font-size:large;margin-left: 2px;">{{order.total_amt}}</span>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock body %}
